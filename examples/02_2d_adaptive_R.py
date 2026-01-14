@@ -74,7 +74,7 @@ def run_2d_fixed_R(y, F, H, Q, r_fixed=1.0):
     return np.array(x_est), np.array(nis_list)
 
 
-def run_2d_adaptive_R(y, F, H, Q, r0=1.0, alpha=0.05):
+def run_2d_adaptive_R(y, F, H, Q, r0=1.0, alpha_slow=0.01, alpha_fast=0.2, nis_threshold=4.0):
     R = np.array([[r0]])
     x0 = np.array([0.0, 0.0])
     P0 = np.eye(2) * 10.0
@@ -91,8 +91,11 @@ def run_2d_adaptive_R(y, F, H, Q, r0=1.0, alpha=0.05):
 
         nis_list.append(nis_value(nu, S))
 
-        # adaptive update R
-        kf.R = update_R_iae(kf.R, nu, kf.H, kf.P_pred, alpha=alpha, eps=1e-6)
+        # adaptive update R (use NIS to switch alpha)
+        current_nis = nis_list[-1]
+        a = alpha_fast if current_nis > nis_threshold else alpha_slow
+        kf.R = update_R_iae(kf.R, nu, kf.H, kf.P_pred, alpha=a, eps=1e-6)
+
 
         x_est.append(kf.x.reshape(-1))
         R_est.append(float(kf.R[0, 0]))
@@ -107,7 +110,12 @@ if __name__ == "__main__":
 
     # 2) run filters
     x_fixed, nis_fixed = run_2d_fixed_R(y, F, H, Q, r_fixed=1.0)
-    x_adapt, R_est, nis_adapt = run_2d_adaptive_R(y, F, H, Q, r0=1.0, alpha=0.05)
+  
+    x_adapt, R_est, nis_adapt = run_2d_adaptive_R(
+        y, F, H, Q, r0=1.0,
+        alpha_slow=0.01, alpha_fast=0.2, nis_threshold=4.0
+    )
+
 
     # 3) plots: position estimate
     plt.figure()
