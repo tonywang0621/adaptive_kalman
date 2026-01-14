@@ -28,7 +28,7 @@ def update_R_iae(R_prev, nu, H, P_pred, alpha=0.05, eps=1e-6):
     # make sure R stays valid (>= eps / PSD)
     R_new = ensure_psd(R_new, eps=eps)
 
-        # optional: cap R to avoid overshoot (works well for 1D measurement)
+    # optional: cap R to avoid overshoot (works well for 1D measurement)
     grow_limit = 1.5  # 每一步最多放大 1.5 倍
     R_cap = float(R_prev[0, 0]) * grow_limit
     R_new = np.array([[min(float(R_new[0, 0]), R_cap)]])
