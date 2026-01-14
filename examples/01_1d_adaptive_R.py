@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+
+# 將 repo 的 src/ 加入 Python 模組搜尋路徑，確保可以 import adaptive_kf
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 
