@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 from adaptive_kf.core.kf import KalmanFilter
 from adaptive_kf.adaptive.iae import update_R_iae
+from adaptive_kf.diagnostics.nis import nis_value
 
 
 def simulate_1d_random_walk(T=400, q=0.2, r1=0.5, r2=4.0, change_point=200, seed=42):
@@ -44,11 +45,19 @@ def run_kf_fixed_R(y, q=0.2, r_fixed=0.5):
     kf = KalmanFilter(F, H, Q, R, x0=[0.0], P0=np.array([[1.0]]))
 
     x_est = []
+    nis_list = []
+
     for t in range(len(y)):
         kf.predict()
-        kf.update([y[t]])
+        _, _, nu, S = kf.update([y[t]])
+
+        # NIS 記錄
+        nis_list.append(nis_value(nu, S))
+
         x_est.append(float(kf.x[0, 0]))
-    return np.array(x_est)
+
+    return np.array(x_est), np.array(nis_list)
+
 
 
 def run_kf_adaptive_R(y, q=0.2, r0=0.5, alpha=0.05):
@@ -64,9 +73,14 @@ def run_kf_adaptive_R(y, q=0.2, r0=0.5, alpha=0.05):
 
     x_est = []
     R_est = []
+    nis_list = []
+
     for t in range(len(y)):
         kf.predict()
-        _, _, nu, _ = kf.update([y[t]])
+        _, _, nu, S = kf.update([y[t]])
+
+        # NIS（用 update 後的 nu, S）
+        nis_list.append(nis_value(nu, S))
 
         # 用 innovation 更新 R
         kf.R = update_R_iae(kf.R, nu, kf.H, kf.P_pred, alpha=alpha, eps=1e-6)
@@ -74,7 +88,8 @@ def run_kf_adaptive_R(y, q=0.2, r0=0.5, alpha=0.05):
         x_est.append(float(kf.x[0, 0]))
         R_est.append(float(kf.R[0, 0]))
 
-    return np.array(x_est), np.array(R_est)
+    return np.array(x_est), np.array(R_est), np.array(nis_list)
+
 
 
 if __name__ == "__main__":
@@ -84,8 +99,9 @@ if __name__ == "__main__":
     x_true, y, R_true = simulate_1d_random_walk(T=T, q=q, change_point=200)
 
     # 2) 跑兩種 KF
-    x_fixed = run_kf_fixed_R(y, q=q, r_fixed=0.5)
-    x_adapt, R_est = run_kf_adaptive_R(y, q=q, r0=0.5, alpha=0.05)
+    x_fixed, nis_fixed = run_kf_fixed_R(y, q=q, r_fixed=0.5)
+    x_adapt, R_est, nis_adapt = run_kf_adaptive_R(y, q=q, r0=0.5, alpha=0.05)
+
 
     # 3) 簡單評估
     rmse_fixed = np.sqrt(np.mean((x_fixed - x_true) ** 2))
@@ -110,3 +126,15 @@ if __name__ == "__main__":
     plt.title("Adaptive measurement noise tracking (R)")
     plt.legend()
     plt.show()
+
+
+
+
+    plt.figure()
+    plt.plot(nis_fixed, label="NIS (fixed R)")
+    plt.plot(nis_adapt, label="NIS (adaptive R)")
+    plt.axhline(1.0, linestyle="--", linewidth=1, label="Reference = 1")
+    plt.title("NIS comparison (1D)")
+    plt.legend()
+    plt.show()
+
