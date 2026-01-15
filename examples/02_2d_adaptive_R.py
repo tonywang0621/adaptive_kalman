@@ -218,7 +218,7 @@ if __name__ == "__main__":
         r0=1.0,
         alpha_slow=ALPHA_SLOW,
         alpha_fast=ALPHA_FAST,
-        nis_threshold=CAP_THRESHOLD,
+        nis_threshold=NIS_THRESHOLD,
         cap_window=CAP_WINDOW,
         cap_mult=CAP_MULT,
         max_fast_steps=MAX_FAST_STEPS,
