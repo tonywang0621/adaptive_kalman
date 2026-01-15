@@ -88,7 +88,7 @@ def run_2d_adaptive_R(
   r_min=1e-6,
   max_fast_steps=5,
   freeze_steps=30,
-  nis_stable=2.0,
+  nis_stable=1.0,
   freeze_count_init=0
 
 
@@ -194,7 +194,7 @@ if __name__ == "__main__":
         alpha_fast=0.35,
         nis_threshold=3.84,
         cap_window=50,
-        cap_mult=2.0
+        cap_mult=1.35
     )
 
 
