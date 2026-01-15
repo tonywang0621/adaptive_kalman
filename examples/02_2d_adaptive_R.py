@@ -77,15 +77,22 @@ def run_2d_fixed_R(y, F, H, Q, r_fixed=1.0):
 
 
 def run_2d_adaptive_R(
-    y, F, H, Q,
-    r0=1.0,
-    alpha_slow=0.01,
-    alpha_fast=0.35,
-    nis_threshold=3.84,
-    cap_window=50,
-    cap_mult=2.0,
-    r_min=1e-6,
-    max_fast_steps=5
+  
+  y, F, H, Q,
+  r0=1.0,
+  alpha_slow=0.01,
+  alpha_fast=0.35,
+  nis_threshold=3.84,
+  cap_window=50,
+  cap_mult=2.0,
+  r_min=1e-6,
+  max_fast_steps=5
+  freeze_steps=30,
+  freeze_count_init=0
+
+
+  
+  
 ):
 
   """
@@ -108,6 +115,12 @@ def run_2d_adaptive_R(
   R_hist = deque([float(r0)] * cap_window, maxlen=cap_window)
   fast_count = 0
 
+  freeze_count = 0
+  baseline_frozen = float(np.median(np.array(R_hist)))
+
+
+  
+
 
   for t in range(len(y)):
       kf.predict()
@@ -121,6 +134,12 @@ def run_2d_adaptive_R(
         # --- fast mode with max consecutive steps ---
       want_fast = current_nis > nis_threshold
 
+      # if we enter fast mode, freeze baseline for a while
+      if want_fast and fast_count == 1:  # 代表剛剛「開始」進 fast
+          freeze_count = freeze_steps
+          baseline_frozen = float(np.median(np.array(R_hist)))
+
+
       if want_fast and fast_count < max_fast_steps:
           a = alpha_fast
           fast_count += 1
@@ -130,7 +149,12 @@ def run_2d_adaptive_R(
 
 
       # rolling cap：用最近 R 的 median 當 baseline
-      baseline = float(np.median(np.array(R_hist)))
+      if freeze_count > 0:
+          baseline = baseline_frozen
+          freeze_count -= 1
+      else:
+          baseline = float(np.median(np.array(R_hist)))
+
       r_max_t = max(baseline * cap_mult, float(kf.R[0, 0]))  # 至少不小於目前R
       rmax_series.append(r_max_t)
 
