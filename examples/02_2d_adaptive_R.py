@@ -117,6 +117,8 @@ def run_2d_adaptive_R(
   freeze_count = 0
   baseline_frozen = float(np.median(np.array(R_hist)))
   cap_floor_t = None  # 先未知，等 warmup 結束自動算
+  print(f"[auto cap_floor] t={t}, stable_level={stable_level:.3f}, cap_floor={cap_floor_t:.3f}")
+
 
 
   for t in range(len(y)):
