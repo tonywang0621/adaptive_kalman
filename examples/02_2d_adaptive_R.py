@@ -15,6 +15,21 @@ from adaptive_kf.adaptive.iae import update_R_iae
 from adaptive_kf.diagnostics.nis import nis_value
 
 
+# ===== Demo config =====
+ALPHA_SLOW = 0.01
+ALPHA_FAST = 0.35
+NIS_THRESHOLD = 3.84
+MAX_FAST_STEPS = 5
+
+CAP_WINDOW = 50
+CAP_MULT = 1.35
+FLOOR_WARMUP = 120
+CAP_FLOOR_MULT = 10.0
+NIS_STABLE = 1.0
+# ======================
+
+
+
 def simulate_2d_constant_velocity(T=300, dt=1.0, q=0.2,
                                  r1=1.0, r2=9.0, change_point=150, seed=42):
     """
@@ -117,7 +132,7 @@ def run_2d_adaptive_R(
   freeze_count = 0
   baseline_frozen = float(np.median(np.array(R_hist)))
   cap_floor_t = None  # 先未知，等 warmup 結束自動算
-  print(f"[auto cap_floor] t={t}, stable_level={stable_level:.3f}, cap_floor={cap_floor_t:.3f}")
+
 
 
 
@@ -177,6 +192,10 @@ def run_2d_adaptive_R(
       if cap_floor_t is None and t >= floor_warmup:
           stable_level = float(np.median(np.array(R_hist)))
           cap_floor_t = cap_floor_mult * stable_level
+          print(f"[auto cap_floor] t={t}, stable_level={stable_level:.3f}, cap_floor={cap_floor_t:.3f}")
+
+
+
 
 
       x_est.append(kf.x.reshape(-1))
@@ -197,11 +216,15 @@ if __name__ == "__main__":
     x_adapt, R_est, nis_adapt, rmax_series = run_2d_adaptive_R(
         y, F, H, Q,
         r0=1.0,
-        alpha_slow=0.01,
-        alpha_fast=0.35,
-        nis_threshold=3.84,
-        cap_window=50,
-        cap_mult=1.35
+        alpha_slow=ALPHA_SLOW,
+        alpha_fast=ALPHA_FAST,
+        nis_threshold=CAP_THRESHOLD,
+        cap_window=CAP_WINDOW,
+        cap_mult=CAP_MULT
+        max_fast_steps=MAX_FAST_STEPS,
+        floor_warmup=FLOOR_WARMUP,
+        cap_floor_mult=CAP_FLOOR_MULT,
+        nis_stable=NIS_STABLE
     )
 
 
