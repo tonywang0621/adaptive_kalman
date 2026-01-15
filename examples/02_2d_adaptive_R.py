@@ -88,6 +88,7 @@ def run_2d_adaptive_R(
   r_min=1e-6,
   max_fast_steps=5,
   freeze_steps=30,
+  nis_stable=2.0,
   freeze_count_init=0
 
 
@@ -149,11 +150,14 @@ def run_2d_adaptive_R(
 
 
       # rolling cap：用最近 R 的 median 當 baseline
-      if freeze_count > 0:
-          baseline = baseline_frozen
-          freeze_count -= 1
-      else:
-          baseline = float(np.median(np.array(R_hist)))
+    # baseline update policy:
+    # only update baseline during "stable" moments (small NIS)
+      if current_nis < nis_stable:
+          # 用穩定期的 R 來更新 baseline（抗 outlier）
+          baseline_frozen = float(np.median(np.array(R_hist)))
+      
+      baseline = baseline_frozen
+
 
       r_max_t = max(baseline * cap_mult, float(kf.R[0, 0]))  # 至少不小於目前R
       rmax_series.append(r_max_t)
