@@ -90,6 +90,7 @@ def run_2d_adaptive_R(
   freeze_steps=30,
   nis_stable=1.0,
   freeze_count_init=0
+  cap_floor=12.0
 
 
   
@@ -159,7 +160,8 @@ def run_2d_adaptive_R(
       baseline = baseline_frozen
 
 
-      r_max_t = max(baseline * cap_mult, float(kf.R[0, 0]))  # 至少不小於目前R
+      r_max_t = max(baseline * cap_mult, float(kf.R[0, 0]), cap_floor)
+
       rmax_series.append(r_max_t)
 
       # 更新 R（把 r_max 變成「每一步動態」）
