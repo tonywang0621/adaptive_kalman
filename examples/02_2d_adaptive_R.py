@@ -172,9 +172,11 @@ if __name__ == "__main__":
     plt.figure()
     plt.plot(R_true, label="True R(t)")
     plt.plot(R_est, label="Estimated R(t) (adaptive)")
-    plt.title("2D: Adaptive measurement noise tracking (R)")
+    plt.plot(rmax_series, linestyle="--", linewidth=1, label="Rolling cap r_max(t)")
+    plt.title("2D: Adaptive measurement noise tracking (R) with rolling cap")
     plt.legend()
     plt.show()
+
 
     # 5) plot NIS
     plt.figure()
