@@ -150,8 +150,8 @@ if __name__ == "__main__":
         y, F, H, Q,
         r0=1.0,
         alpha_slow=0.01,
-        alpha_fast=0.2,
-        nis_threshold=6.63,
+        alpha_fast=0.35,
+        nis_threshold=3.84,
         cap_window=50,
         cap_mult=2.0
     )
