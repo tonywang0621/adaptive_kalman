@@ -77,7 +77,6 @@ def run_2d_fixed_R(y, F, H, Q, r_fixed=1.0):
 
 
 def run_2d_adaptive_R(
-  
   y, F, H, Q,
   r0=1.0,
   alpha_slow=0.01,
@@ -91,10 +90,8 @@ def run_2d_adaptive_R(
   nis_stable=1.0,
   freeze_count_init=0,
   cap_floor=12.0
-
-
-  
-  
+  floor_warmup=120,
+  cap_floor_mult=12.0
 ):
 
   """
@@ -119,9 +116,7 @@ def run_2d_adaptive_R(
 
   freeze_count = 0
   baseline_frozen = float(np.median(np.array(R_hist)))
-
-
-  
+  cap_floor_t = None  # 先未知，等 warmup 結束自動算
 
 
   for t in range(len(y)):
@@ -159,8 +154,10 @@ def run_2d_adaptive_R(
       
       baseline = baseline_frozen
 
+      
+      floor_val = cap_floor_t if cap_floor_t is not None else 0.0
+      r_max_t = max(baseline * cap_mult, float(kf.R[0, 0]), floor_val)
 
-      r_max_t = max(baseline * cap_mult, float(kf.R[0, 0]), cap_floor)
 
       rmax_series.append(r_max_t)
 
@@ -173,6 +170,12 @@ def run_2d_adaptive_R(
 
       # 更新視窗
       R_hist.append(float(kf.R[0, 0]))
+
+      # after warmup, set cap_floor_t automatically using stable-period R level
+      if cap_floor_t is None and t >= floor_warmup:
+          stable_level = float(np.median(np.array(R_hist)))
+          cap_floor_t = cap_floor_mult * stable_level
+
 
       x_est.append(kf.x.reshape(-1))
       R_est.append(float(kf.R[0, 0]))
