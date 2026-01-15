@@ -220,7 +220,7 @@ if __name__ == "__main__":
         alpha_fast=ALPHA_FAST,
         nis_threshold=CAP_THRESHOLD,
         cap_window=CAP_WINDOW,
-        cap_mult=CAP_MULT
+        cap_mult=CAP_MULT,
         max_fast_steps=MAX_FAST_STEPS,
         floor_warmup=FLOOR_WARMUP,
         cap_floor_mult=CAP_FLOOR_MULT,
