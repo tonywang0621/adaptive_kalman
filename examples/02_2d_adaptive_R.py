@@ -1,3 +1,5 @@
+from collections import deque
+
 import sys
 from pathlib import Path
 
@@ -74,7 +76,21 @@ def run_2d_fixed_R(y, F, H, Q, r_fixed=1.0):
     return np.array(x_est), np.array(nis_list)
 
 
-def run_2d_adaptive_R(y, F, H, Q, r0=1.0, alpha_slow=0.01, alpha_fast=0.2, nis_threshold=4.0):
+def run_2d_adaptive_R(
+    y, F, H, Q,
+    r0=1.0,
+    alpha_slow=0.01,
+    alpha_fast=0.2,
+    nis_threshold=6.63,
+    cap_window=50,
+    cap_mult=2.0,
+    r_min=1e-6
+):
+    """
+    自適應 R + NIS 觸發快慢更新 + rolling window cap
+    cap_window: 滾動視窗長度
+    cap_mult  : 上限倍數（median * cap_mult）
+    """
     R = np.array([[r0]])
     x0 = np.array([0.0, 0.0])
     P0 = np.eye(2) * 10.0
@@ -84,24 +100,42 @@ def run_2d_adaptive_R(y, F, H, Q, r0=1.0, alpha_slow=0.01, alpha_fast=0.2, nis_t
     x_est = []
     R_est = []
     nis_list = []
+    rmax_series = []
+
+    # 滾動視窗：存最近 cap_window 個 R
+    R_hist = deque([float(r0)] * cap_window, maxlen=cap_window)
 
     for t in range(len(y)):
         kf.predict()
         _, _, nu, S = kf.update([y[t]])
 
-        nis_list.append(nis_value(nu, S))
+        # NIS
+        current_nis = nis_value(nu, S)
+        nis_list.append(current_nis)
 
-        # adaptive update R (use NIS to switch alpha)
-        current_nis = nis_list[-1]
+        # 快慢 alpha 切換
         a = alpha_fast if current_nis > nis_threshold else alpha_slow
-        kf.R = update_R_iae(kf.R, nu, kf.H, kf.P_pred, alpha=a, eps=1e-6, r_max=12.0)
 
+        # rolling cap：用最近 R 的 median 當 baseline
+        baseline = float(np.median(np.array(R_hist)))
+        r_max_t = max(baseline * cap_mult, float(kf.R[0, 0]))  # 至少不小於目前R
+        rmax_series.append(r_max_t)
 
+        # 更新 R（把 r_max 變成「每一步動態」）
+        kf.R = update_R_iae(
+            kf.R, nu, kf.H, kf.P_pred,
+            alpha=a, eps=1e-6,
+            r_min=r_min, r_max=r_max_t
+        )
+
+        # 更新視窗
+        R_hist.append(float(kf.R[0, 0]))
 
         x_est.append(kf.x.reshape(-1))
         R_est.append(float(kf.R[0, 0]))
 
-    return np.array(x_est), np.array(R_est), np.array(nis_list)
+    return np.array(x_est), np.array(R_est), np.array(nis_list), np.array(rmax_series)
+
 
 
 if __name__ == "__main__":
@@ -112,10 +146,16 @@ if __name__ == "__main__":
     # 2) run filters
     x_fixed, nis_fixed = run_2d_fixed_R(y, F, H, Q, r_fixed=1.0)
   
-    x_adapt, R_est, nis_adapt = run_2d_adaptive_R(
-        y, F, H, Q, r0=1.0,
-        alpha_slow=0.01, alpha_fast=0.2, nis_threshold=4.0
+    x_adapt, R_est, nis_adapt, rmax_series = run_2d_adaptive_R(
+        y, F, H, Q,
+        r0=1.0,
+        alpha_slow=0.01,
+        alpha_fast=0.2,
+        nis_threshold=6.63,
+        cap_window=50,
+        cap_mult=2.0
     )
+
 
 
     # 3) plots: position estimate
