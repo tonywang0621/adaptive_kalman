@@ -86,7 +86,7 @@ def run_2d_adaptive_R(
   cap_window=50,
   cap_mult=2.0,
   r_min=1e-6,
-  max_fast_steps=5
+  max_fast_steps=5,
   freeze_steps=30,
   freeze_count_init=0
 
