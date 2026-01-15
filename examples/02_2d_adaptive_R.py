@@ -89,7 +89,7 @@ def run_2d_adaptive_R(
   freeze_steps=30,
   nis_stable=1.0,
   freeze_count_init=0,
-  cap_floor=12.0
+  cap_floor=12.0,
   floor_warmup=120,
   cap_floor_mult=12.0
 ):
