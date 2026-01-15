@@ -2,7 +2,7 @@ import numpy as np
 from adaptive_kf.utils.psd import ensure_psd
 
 
-def update_R_iae(R_prev, nu, H, P_pred, alpha=0.05, eps=1e-6):
+def update_R_iae(R_prev, nu, H, P_pred, alpha=0.05, eps=1e-6, r_min=1e-6, r_max=None):
     """
     Innovation-based Adaptive Estimation (IAE) for R.
 
@@ -27,6 +27,16 @@ def update_R_iae(R_prev, nu, H, P_pred, alpha=0.05, eps=1e-6):
 
     # make sure R stays valid (>= eps / PSD)
     R_new = ensure_psd(R_new, eps=eps)
+        # --- global cap: keep R within a reasonable range ---
+    # r_min: avoid collapsing to 0
+    # r_max: prevent overshoot / divergence
+    R_val = float(R_new[0, 0])
+    R_val = max(R_val, r_min)
+    if r_max is not None:
+        R_val = min(R_val, float(r_max))
+    R_new = np.array([[R_val]])
+
+    
 
     # optional: cap R to avoid overshoot (works well for 1D measurement)
     grow_limit = 1.5  # 每一步最多放大 1.5 倍
