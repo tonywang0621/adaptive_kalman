@@ -94,7 +94,8 @@ def run_2d_adaptive_R(y, F, H, Q, r0=1.0, alpha_slow=0.01, alpha_fast=0.2, nis_t
         # adaptive update R (use NIS to switch alpha)
         current_nis = nis_list[-1]
         a = alpha_fast if current_nis > nis_threshold else alpha_slow
-        kf.R = update_R_iae(kf.R, nu, kf.H, kf.P_pred, alpha=a, eps=1e-6)
+        kf.R = update_R_iae(kf.R, nu, kf.H, kf.P_pred, alpha=a, eps=1e-6, r_max=12.0)
+
 
 
         x_est.append(kf.x.reshape(-1))
