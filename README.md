@@ -38,14 +38,3 @@ This project adapts `R(t)` online using:
 - Interpretation: large sustained NIS often indicates underestimated uncertainty (e.g., `R` too small)
 
 ---
-
-# Install minimal dependencies
-!pip -q install -r requirements.txt
-
-#Run example 
-
-%matplotlib inline
-%run examples/01_1d_adaptive_R.py
-
-%matplotlib inline
-%run examples/02_2d_adaptive_R.py
