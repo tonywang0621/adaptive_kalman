@@ -29,11 +29,11 @@ This project adapts `R(t)` online using:
 
 ## What’s Included
 
-### ✅ Demos
+###  Demos
 - **1D** adaptive `R(t)` + NIS diagnostics
 - **2D** constant-velocity model (state = position, velocity) with adaptive `R(t)` + NIS + safeguards
 
-### ✅ Diagnostics
+###  Diagnostics
 - NIS curve comparison: fixed-`R` vs adaptive-`R`
 - Interpretation: large sustained NIS often indicates underestimated uncertainty (e.g., `R` too small)
 
