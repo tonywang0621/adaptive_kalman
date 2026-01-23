@@ -38,4 +38,3 @@ This project adapts `R(t)` online using:
 - Interpretation: large sustained NIS often indicates underestimated uncertainty (e.g., `R` too small)
 
 ---
-
