@@ -5,15 +5,11 @@ This repository implements an **Adaptive Kalman Filter** for **non-stationary me
 It also includes:
 - **Diagnostics (NIS: Normalized Innovation Squared)**
 - **Regime-shift handling** via slow/fast adaptation switching
-
-
-This design is intended to be a clean “method/toolbox repo” that can later connect to **AI/ML** and **finance** use-cases (e.g., time-varying volatility, changing market regimes).
-
 ---
 
 ## Key Ideas
 
-A standard Kalman Filter assumes fixed noise statistics. In many real systems (and finance), measurement noise changes over time.
+A standard Kalman Filter assumes fixed noise statistics. In many real systems (eg:finance), measurement noise changes over time.
 
 This project adapts `R(t)` online using:
 
