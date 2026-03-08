@@ -43,3 +43,9 @@ Key observations:
 - During regime shifts (sudden increases in noise), the **fast adaptation mode allows the filter to adjust quickly**, preventing large estimation errors.
 
 Overall, the adaptive approach produces **more stable state estimates and better uncertainty calibration** compared to the fixed-R Kalman Filter.
+<img width="546" height="435" alt="Random_Walk_fixed_R_VS_Adaptive_R_1D" src="https://github.com/user-attachments/assets/5930e6b3-a3de-40e5-84b1-b4569ef26032" />
+<img width="554" height="435" alt="Constant_Velocity_Position_Fixed_R_VS_Adaptive_R_2D" src="https://github.com/user-attachments/assets/e1888223-5eaf-4d40-8a3c-72186d0f24a9" />
+<img width="534" height="435" alt="Adaptive_Measurement_Noise_Tracking_R_1D" src="https://github.com/user-attachments/assets/710cab02-9ae8-4a5a-88cf-cd5d0fd316e5" />
+<img width="552" height="435" alt="Adaptive_Measurement_Noise_TrackingR_With_Rolling_Cap_2D" src="https://github.com/user-attachments/assets/61e144e8-62f8-4591-80e2-57d4978c6cb0" />
+
+
