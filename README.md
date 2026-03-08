@@ -30,3 +30,16 @@ This project adapts `R(t)` online using:
 - Interpretation: large sustained NIS often indicates underestimated uncertainty (e.g., `R` too small)
 
 ---
+## Results
+
+The experiments compare a **standard Kalman Filter with fixed measurement noise** and an **Adaptive Kalman Filter with online estimation of R(t)**.
+
+The results show that the adaptive filter improves estimation performance in environments where measurement noise varies over time.
+
+Key observations:
+
+- The **Adaptive Kalman Filter tracks changes in measurement noise more effectively**.
+- **NIS diagnostics remain closer to the theoretical expectation**, indicating improved filter consistency.
+- During regime shifts (sudden increases in noise), the **fast adaptation mode allows the filter to adjust quickly**, preventing large estimation errors.
+
+Overall, the adaptive approach produces **more stable state estimates and better uncertainty calibration** compared to the fixed-R Kalman Filter.
