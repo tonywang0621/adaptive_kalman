@@ -207,7 +207,7 @@ def run_2d_adaptive_R(
 
 if __name__ == "__main__":
     # 1) simulate data
-    T = 100
+    T = 50
     x_true, y, R_true, F, H, Q = simulate_2d_constant_velocity(T=T, change_point=150)
 
     # 2) run filters
